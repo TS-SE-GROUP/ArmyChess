@@ -1,0 +1,49 @@
+package armychess;
+
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionListener;
+
+import javax.swing.*;
+
+@SuppressWarnings("serial")
+public class VersionDialog extends JDialog{
+	public VersionDialog(java.awt.Frame parent,String title, boolean modal) {
+		super(parent, title, modal);
+		initComponents();
+	}
+	private void initComponents() {
+		JButton ConfirmBtn = new JButton();
+		JPanel jp1 = new JPanel();
+		jp1.setLayout(new GridLayout(5,1,5,5));
+		JLabel jl1 = new JLabel();
+		jl1.setFont(new java.awt.Font("华文楷体", 1, 14));
+		jl1.setText("游戏版本号   1.0");
+		jp1.add(jl1);
+		JLabel jl2 = new JLabel();
+		jl2.setFont(new java.awt.Font("华文楷体", 1, 14));
+		jl2.setText("代码维护   https://github.com/TS-SE-GROUP/ArmyChess");
+		jp1.add(jl2);
+		JLabel jl3 = new JLabel();
+		jl3.setFont(new java.awt.Font("华文楷体", 1, 14));
+		jl3.setText("低通滤波器组   制作");
+		jp1.add(jl3);
+		JLabel jl4 = new JLabel();
+		jl4.setFont(new java.awt.Font("华文楷体", 1, 14));
+		jl4.setText("联系方式 : xgwxcs@163.com");
+		jp1.add(jl4);
+		ConfirmBtn.setText("确定");
+		//ConfirmBtn.setBounds(0,0,80,50);
+		ConfirmBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				VersionDialog.this.dispose();
+			}
+		});	
+		jp1.add(ConfirmBtn);
+		getContentPane().add(jp1);
+		setBounds(0, 0, 430, 200);
+	setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+	setLocationRelativeTo(null); 
+	setVisible(true);
+	}
+}
