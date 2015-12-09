@@ -1,4 +1,3 @@
-
 package armychess;
 
 import java.awt.BorderLayout;
@@ -137,9 +136,8 @@ class CreateGame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO 自动生成的方法存根
 		GameMode = (String) JOptionPane.showInputDialog(MainFrame.this, "选择游戏模式", "创建游戏", JOptionPane.OK_CANCEL_OPTION,
-				null,	new String[] {"双人", "四人——四暗","四人——双明","四人——四明"}, 
+				null,new String[] {"双人", "四人——四暗","四人——双明","四人——四明"}, 
 				"四人——四暗");
-		 System.out.println(GameMode);
 	}
 }
 
@@ -149,7 +147,6 @@ class JoinGame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO 自动生成的方法存根
 		String ServerIP = (String) JOptionPane.showInputDialog(MainFrame.this, "输入服务端地址", "加入游戏", JOptionPane.OK_CANCEL_OPTION);
-		System.out.println(ServerIP);
 	}
 }
 
@@ -186,13 +183,23 @@ class SoundControl implements ActionListener{
 		ButtonGroup bmusic = new ButtonGroup();
 		bmusic.add(bmusic1);
 		bmusic.add(bmusic2);
-		JRadioButton effectsound1 = new JRadioButton("音效开       ",true);
-		JRadioButton effectsound2 = new JRadioButton("音效关       ",false);
+		JRadioButton effectsound1 = new JRadioButton("游戏音效开 ",true);
+		JRadioButton effectsound2 = new JRadioButton("游戏音效关",false);
 		ButtonGroup effectsound = new ButtonGroup();
 		effectsound.add(effectsound1);
 		effectsound.add(effectsound2);
 		JButton confirmbu = new JButton("确认");
+		confirmbu.addActionListener(new ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				jd1.dispose();
+			}
+		});	
 		JButton canclebu = new JButton("取消");
+		canclebu.addActionListener(new ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				jd1.dispose();
+			}
+		});
 		jp1.add(bmusic1);
 		jp1.add(bmusic2);
 		jp1.add(effectsound1);
@@ -250,9 +257,9 @@ class GameHelp implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO 自动生成的方法存根
-//		HelpDialog jd1 = new HelpDialog(MainFrame.this,"游戏帮助",false);
-//		jd1.setLocationRelativeTo(null); 
-//		jd1.setVisible(true);
+		HelpDialog jd1 = new HelpDialog(MainFrame.this,"游戏帮助",false);
+		jd1.setLocationRelativeTo(null); 
+		jd1.setVisible(true);
 	}
 }
 class VersionInfo implements ActionListener{
@@ -267,3 +274,4 @@ class VersionInfo implements ActionListener{
 }
 }
  
+
