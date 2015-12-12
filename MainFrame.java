@@ -1,16 +1,14 @@
+/*
+ * 刚进入游戏的主界面，可通过菜单开始游戏、设置、查看游戏、帮助等信息。
+ * 
+ */
 package armychess;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -21,15 +19,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 
 import java.awt.Font;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,9 +36,9 @@ public class MainFrame extends JFrame {
 	 * 
 	 */
 	private JPanel contentPane;
-	String GameMode;
-
-	/**
+    private GsFrame gameserver;
+	
+    /**
 	 * Launch the application.
 	 */
 	/*
@@ -135,9 +129,10 @@ class CreateGame implements ActionListener{
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// TODO 自动生成的方法存根
-		GameMode = (String) JOptionPane.showInputDialog(MainFrame.this, "选择游戏模式", "创建游戏", JOptionPane.OK_CANCEL_OPTION,
+		String GameMode = (String) JOptionPane.showInputDialog(MainFrame.this, "选择游戏模式", "创建游戏", JOptionPane.OK_CANCEL_OPTION,
 				null,new String[] {"双人", "四人——四暗","四人——双明","四人——四明"}, 
 				"四人——四暗");
+		gameserver = new GsFrame(GameMode);
 	}
 }
 
@@ -274,4 +269,3 @@ class VersionInfo implements ActionListener{
 }
 }
  
-
