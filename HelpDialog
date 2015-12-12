@@ -1,3 +1,7 @@
+/*
+ * 帮助信息的对话框。
+ */
+
 package armychess;
 
 import javax.swing.JDialog;
@@ -10,7 +14,6 @@ import java.io.File;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
 import javax.swing.JLabel;
 import javax.swing.ScrollPaneConstants;
 
