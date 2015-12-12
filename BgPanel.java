@@ -1,3 +1,7 @@
+/*
+ * 图片panel，可调整大小
+ */
+
 package armychess;
 
 import java.awt.*;
