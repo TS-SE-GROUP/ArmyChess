@@ -1,3 +1,7 @@
+/*
+   军旗游戏的主入口。
+ */
+
 package armychess;
 
 import java.awt.EventQueue;
