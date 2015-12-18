@@ -195,7 +195,7 @@ public class Chessboard {
 					|| i == 80) {
 				pos[i].rail[0] = 3;
 				if (count[2] < 5)
-					line[2][5 - count[2]] = i;
+					line[2][4 - count[2]] = i;
 				else
 					line[2][count[2]] = i;
 				count[2]++;
@@ -204,7 +204,7 @@ public class Chessboard {
 					|| i == 110) {
 				pos[i].rail[0] = 4;
 				if (count[3] < 5)
-					line[3][5 - count[3]] = i;
+					line[3][4 - count[3]] = i;
 				else
 					line[3][count[3]] = i;
 				count[3]++;
@@ -632,73 +632,76 @@ public class Chessboard {
 					break;
 				}
 			}
-		} else
+		} else{
 			result = jouson(attack, defend);
+			for(int i=0;i<129;i++)
+				pollute[i]=false;
+		}
 		return result;
 	}
 	
 
-	// 游戏行棋,返回0时表示行棋不符合规则
+	// 游戏行棋,返回0时表示行棋不符合规则,1表示移动棋子，2表示同归于尽，3表示吃棋，4表示进攻方被吃，5表示其他情况
 	// 行棋
-	public boolean fight(int attack, int defend) {
+	public int fight(int attack, int defend) {
 		int con = connect(attack, defend);
 		if (pos[attack].type == 31 || pos[attack].type == 41 || pos[attack].type == 42 || con == 0)
-			return false;
+			return 0;
 		if (pos[attack].type != 32 && con == 2)
-			return false;
+			return 0;
 		if (pos[attack].id % 30 == 26 || pos[attack].id % 30 == 28)
-			return false;// 动大本营内的棋子
+			return 0;// 动大本营内的棋子
 		if (pos[defend].typepo == 1 && pos[defend].type != 42)
-			return false; // 营内有棋子
+			return 0; // 营内有棋子
 		if (pos[defend].type == 42) {
 			pos[defend].type = pos[attack].type;
 			pos[attack].type = 42;
 			pos[defend].party = pos[attack].party;
 			pos[attack].party = 5;
-			return true;
+			return 1;
 		} // 移动棋子
 		if ((pos[attack].party - pos[defend].party) % 2 == 0)
-			return false; // 不是对立势力
+			return 0; // 不是对立势力
 		if (pos[defend].type == pos[attack].type) {
 			pos[defend].type = 42;
 			pos[attack].type = 42;
 			pos[attack].party = 5;
 			pos[defend].party = 5;
-			return true;
+			return 2;
 		} // 两相同棋子相撞
 		if (pos[attack].type > pos[defend].type && pos[defend].type != 30) {
 			pos[defend].type = pos[attack].type;
 			pos[defend].party = pos[attack].party;
 			pos[attack].type = 42;
 			pos[attack].party = 5;
-			return true;
+			return 3;
 		} // 吃棋
 		if (pos[attack].type == 30 || pos[defend].type == 30) {
 			pos[attack].type = 42;
 			pos[defend].type = 42;
 			pos[attack].party = 5;
 			pos[defend].party = 5;
-			return true;
+			return 2;
 		} // 任一方是炸弹
 		if (pos[attack].type == 32 && pos[defend].type == 41) {
 			pos[defend].type = pos[attack].type;
 			pos[defend].party = pos[attack].party;
 			pos[attack].type = 42;
 			pos[attack].party = 5;
-			return true;
+			return 3;
 		} // 工兵飞地雷
 		if (pos[attack].type < pos[defend].type) {
 			pos[attack].type = 42;
 			pos[attack].party = 5;
-			return true;
+			return 4;
 		} // 进攻方被吃
-		return true;
+		return 5;
 	}
 	
 
 	// 判断某方是否死掉,0代表死掉
 	// 判断某方是否失败
-	public boolean failture(int party) {
+	public int failture(int party) {
 		int mark1 = 0, mark2 = 0;
 		for (int i = 0; i < 129 && mark1 == 0; i++) {
 			if (pos[i].type == 31 && pos[i].party == party)
@@ -708,26 +711,26 @@ public class Chessboard {
 			if (pos[i].party == party && pos[i].type != 41 && pos[i].type != 31)
 				mark2 = 1;
 		}
-		if (mark1 == 0 || mark2 == 0)
-			return false;
-		else
-			return true;
+		if(mark1 == 0) return 1;
+		else if(mark2 == 0) return 2;
+		else return 0;
 	}
 	
 
 	// 判断棋局是否结束 0表示未结束，1表示甲方胜利，2表示乙方胜利；
 	// 判断棋局是否结束，1=1，3方获胜，2=2，4方获胜，0=未结束
 	public int success() {
-		boolean a[] = new boolean[4];
+		int a[] = new int[4];
 		for (int i = 0; i < 4; i++) {
 			a[i] = failture(i + 1);
 		}
-		if (a[0] == false && a[2] == false)
+		if (a[0] >0 && a[2] >0)
 			return 2;
-		if (a[1] == false && a[3] == false)
+		if (a[1] >0 && a[3] >0)
 			return 1;
 		else
 			return 0;
 	}
 
 }
+
