@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -36,6 +37,7 @@ import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 public class GcFrame extends JFrame {
+	//界面和特效变量
 	private BufferedImage[][] chessimg = new BufferedImage[12][13];
 	private BufferedImage chessbg = null;
 	private BufferedImage[] tipbox = new BufferedImage[2];
@@ -55,17 +57,25 @@ public class GcFrame extends JFrame {
 	private JMenuItem GamePeaceMenuItem;
 	private JMenuItem LoadLayoutMenuItem;
 	private JMenuItem SaveLayoutMenuItem;
-	private String ServerIP;
-	private String gamesave;
+	private JMenuItem AutosaveMenuItem;
+	private JMenuItem SoundeffectMenuItem;
+	private Chessboard chessboard = new Chessboard();
 	private ChessPanel cp1 = new ChessPanel();
 	private ChessPos[][] chesslayout = new ChessPos[17][17];
+	//游戏相关变量
+	private String ServerIP;
+	private String gamesave;	
 	private PlayerState[] playerstate = new PlayerState[4];
-	private Chessboard chessboard = new Chessboard();
 	private int playerid;  // 0,1,2,3 each replays  red,blue,green,purple
 	private int gamestate; //0: 布局阶段 1布局结束等待阶段 4测试阶段
 	private int gamemode;  //0: 四暗, 1: 双明， 2： 全明
 	private int turn;     //当前处于第几个玩家的回合
 	private int totalturn;  //回合数总和
+	private int clickstate = 0; //点击状态
+	private int[] clickloc = {0,0,0,0}; //前两回合的点击位置
+	private boolean autosave = true;
+	private boolean soundeffect = true;
+	//界面控制变量
 	private int[] locxs = {39,78,118,157,195,236,268,309,348,387,427,468,507,546,585,625,664}; //每一列的初始位置
 	private int[] locys = {14,53,90,129,169,208,247,280,325,359,402,441,478,519,559,598,637};  //每一行的初始位置（中间）
 	private int[] locys2 = {14,53,90,129,169,208,241,280,319,359,398,441,478,519,559,598,637}; //每一行的初始位置（两边）
@@ -89,13 +99,13 @@ public class GcFrame extends JFrame {
 			{-1,-1,-1,-1,-1,-1,20,21,22,23,24,-1,-1,-1,-1,-1,-1},
 			{-1,-1,-1,-1,-1,-1,25,26,27,28,29,-1,-1,-1,-1,-1,-1}
             };//将17*17个位置转换为129位标记
+	/*
 	private int[][] num1to2 ={{11,11,11,11,11,12,12,12,13,13,13,13,14,14,14,12,12,13,14,14,15,15,15,15,15,16,16,16,16,16,10,9,8,7,6,10,8,6,10,9,7,6,10,8,6,9,7,8,9,7,10,9,8,7,6,10,9,8,7,6,5,5,5,5,5,4,4,4,3,3,3,3,2,2,2,4,4,3,2,2,1,1,1,1,1,0,0,0,0,0,6,7,8,9,10,6,8,10,6,7,9,10,6,8,10,7,9,8,7,9,6,7,8,9,10,6,7,8,9,10,6,6,6,8,8,8,10,10,10,},
 			{6,7,8,9,10,6,8,10,6,7,9,10,6,8,10,7,9,8,7,9,6,7,8,9,10,6,7,8,9,10,11,11,11,11,11,12,12,12,13,13,13,13,14,14,14,12,12,13,14,14,15,15,15,15,15,16,16,16,16,16,10,9,8,7,6,10,8,6,10,9,7,6,10,8,6,9,7,8,9,7,10,9,8,7,6,10,9,8,7,6,5,5,5,5,5,4,4,4,3,3,3,3,2,2,2,4,4,3,2,2,1,1,1,1,1,0,0,0,0,0,6,8,10,6,8,10,6,8,10}
             };//将17*17个位置转换为129位标记
+    */
 	private int[] kind2to1 = {42,30,41,40,39,38,37,36,35,34,33,32,31}; 
-	private int[] kind1to2 = {1,12,11,10,9,8,7,6,5,4,3,2,-1};
-	private int clickstate = 0; //点击状态
-	private int[] clickloc = {0,0,0,0}; //前两回合的点击位置
+	//private int[] kind1to2 = {1,12,11,10,9,8,7,6,5,4,3,2,-1};
 	/**
 	 * Create the frame.
 	 * @throws IOException 
@@ -133,6 +143,7 @@ public class GcFrame extends JFrame {
 		for(int i=0;i<4;i++){
 			playerstate[i]=new PlayerState();
 		}
+		LoadConfig();
 		InitLayout();
 		InitFrame();
 		setVisible(true);
@@ -212,6 +223,67 @@ public class GcFrame extends JFrame {
 		SaveLayoutMenuItem.addActionListener(new SaveLayout());
 		LayoutMenu.add(SaveLayoutMenuItem);
 		
+		JMenu SetMenu = new JMenu("设置");
+		menuBar.add(SetMenu);
+		
+		AutosaveMenuItem = new JMenuItem("自动保存（已打开）");
+		if(!autosave){
+			AutosaveMenuItem.setText("自动保存（已关闭）");
+		}
+		AutosaveMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+						
+				if(autosave){
+					autosave = false;
+					AutosaveMenuItem.setText("自动保存（已关闭）");
+				}else{
+					autosave = true;
+					AutosaveMenuItem.setText("自动保存（已打开）");
+				}
+				FileOutputStream configwrite;
+				try {
+					configwrite = new FileOutputStream("./save/config.ini");
+					String config= "soundeffect = "+String.valueOf(soundeffect)+'\n'+"autosave = "+ String.valueOf(soundeffect);	
+					configwrite.write(config.getBytes());
+					configwrite.close();
+				} catch (IOException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				} 
+				
+			}
+		});
+		SetMenu.add(AutosaveMenuItem);
+		
+		SoundeffectMenuItem = new JMenuItem("背景音效（已打开）");
+		if(!soundeffect){
+			SoundeffectMenuItem.setText("背景音效（已关闭）");
+		}
+		SoundeffectMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+						
+				if(soundeffect){
+					soundeffect = false;
+					SoundeffectMenuItem.setText("背景音效（已关闭）");
+				}else{
+					soundeffect = true;
+					SoundeffectMenuItem.setText("背景音效（已打开）");
+				}
+				FileOutputStream configwrite;
+				try {
+					configwrite = new FileOutputStream("./save/config.ini");
+					String config= "soundeffect = "+String.valueOf(soundeffect)+'\n'+"autosave = "+ String.valueOf(soundeffect);	
+					configwrite.write(config.getBytes());
+					configwrite.close();
+				} catch (IOException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				} 
+				
+			}
+		});
+		SetMenu.add(SoundeffectMenuItem);
+		
 		cp1.addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent e)
@@ -225,6 +297,38 @@ public class GcFrame extends JFrame {
 		setContentPane(cp1);
 	}
 	
+	public void LoadConfig(){
+		String tempstring;
+		String[] splstring;
+		try {
+			BufferedReader in =new BufferedReader(new FileReader("./save/config.ini"));
+			while((tempstring=in.readLine())!=null){
+				//System.out.println(gameload[j]);
+				splstring = tempstring.split(" ");
+				if(splstring.length==3){
+					if(splstring[0].equals("soundeffect")){
+						if(splstring[2].equals("true")){
+							soundeffect = true;
+						}else if(splstring[2].equals("false")){	
+							soundeffect = false;
+						}
+					}else if(splstring[0].equals("autosave")){
+						if(splstring[2].equals("true")){
+							autosave = true;
+						}else if(splstring[2].equals("false")){	
+							autosave = false;
+						}
+					}
+				}
+			}
+		} catch (FileNotFoundException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+	}
 	//处理点击位置
 	public void ClickControl(int x,int y){
 		int clocx=0,clocy=0,temp,tempchessid1,tempchessid2,tempowner1,tempowner2;
@@ -248,7 +352,7 @@ public class GcFrame extends JFrame {
 				  clickstate = 1;
 				  clickloc[2]=clocx;
 				  clickloc[3]=clocy;
-				  selectsound.play();
+				  if(soundeffect) selectsound.play();
 			  }else{
 				  if(clocx==clickloc[2]&&clocy==clickloc[3]){
 					  chesslayout[clocx][clocy].tipstate = 0;
@@ -261,7 +365,8 @@ public class GcFrame extends JFrame {
 						  clickloc[0]=clocx;
 						  clickloc[1]=clocy;
 						  chesslayout[clocx][clocy].tipstate = 1;
-						  movesound.play();
+						  if(soundeffect)
+						    movesound.play();
 					  }else
 						  chesslayout[clickloc[2]][clickloc[3]].tipstate = 0;
 				  }
@@ -281,7 +386,7 @@ public class GcFrame extends JFrame {
 					  clickstate = 1;
 					  clickloc[2]=clocx;
 					  clickloc[3]=clocy;
-					  selectsound.play();
+					  if(soundeffect) selectsound.play();
 					  }
 				 }else{
 					 tempchessid1 = chesslayout[clickloc[2]][clickloc[3]].chessid;
@@ -361,7 +466,7 @@ public class GcFrame extends JFrame {
 				chesslayout[x2][y2].visionstate=chesslayout[x1][y1].visionstate;
 				chesslayout[x1][y1].chessid = -1;
 				chesslayout[x1][y1].owner = -1;
-				movesound.play();
+				if(soundeffect) movesound.play();
 			}else if(rec==2){
 				flag = 0;
 				if(chesslayout[x1][y1].chessid==3){
@@ -373,9 +478,9 @@ public class GcFrame extends JFrame {
 					flag = 1;
 				}
 				if(flag == 1){
-					flagsound.play();
+				if(soundeffect)	flagsound.play();
 				}else{
-					bombsound.play();
+				if(soundeffect)	bombsound.play();
 				}
 				chesslayout[x1][y1].chessid = -1;
 				chesslayout[x1][y1].owner = -1;
@@ -387,7 +492,7 @@ public class GcFrame extends JFrame {
 				chesslayout[x2][y2].visionstate=chesslayout[x1][y1].visionstate;
 				chesslayout[x1][y1].chessid = -1;
 				chesslayout[x1][y1].owner = -1;
-				eatsound.play();
+				if(soundeffect) eatsound.play();
 			}else{
 				flag = 0;
 				if(chesslayout[x1][y1].chessid==3){
@@ -395,9 +500,9 @@ public class GcFrame extends JFrame {
 					flag =1;
 				}
 				if(flag == 1){
-					flagsound.play();
+				if(soundeffect)	flagsound.play();
 				}else{
-					killedsound.play();
+				if(soundeffect)	killedsound.play();
 				}
 				chesslayout[x1][y1].chessid = -1;
 				chesslayout[x1][y1].owner = -1;
@@ -421,9 +526,9 @@ public class GcFrame extends JFrame {
 			for(int j=0;j<17;j++)
 				chesslayout[i][j]=new ChessPos();
 		}
-		//ReadLayoutFile("./save/default.als",playerid);
+		//ReadLayoutFile("./save/layoutsave/default.als",playerid);
 		for(int i=0;i<4;i++){
-			ReadLayoutFile("./save/default.als",i);
+			ReadLayoutFile("./save/layoutsave/default.als",i);
 		}
 		chessboard.initial();
 	}
@@ -651,7 +756,7 @@ public class GcFrame extends JFrame {
 		turn = -1;
 		totalturn = 0;
 		addturn();
-		beginsound.play();
+		if(soundeffect) beginsound.play();
 	}
 	//增加回合
 	public void addturn(){
@@ -672,6 +777,7 @@ public class GcFrame extends JFrame {
 			}
 			i++;
 		}
+		cp1.repaint();
 		totalturn =totalturn+1;
 		if(turn != playerid){
 		GameSkipMenuItem.setEnabled(false);
@@ -747,18 +853,40 @@ public class GcFrame extends JFrame {
 				}
 			}
 			gamesave =gamesave +'\n';
-			deadsound.play();
+			if(soundeffect) deadsound.play();
 		}
 	}
 	//游戏结束
 	public void gameend(){
 		boolean flag= false;
+		int allcounts = 0,wincounts = 0;
+		File cfile=new File(".\\save\\count.ini");
+		if(cfile.isFile()&&cfile.exists()){
+		try {
+			BufferedReader in =new BufferedReader(new FileReader(cfile));
+			String[] strspl = in.readLine().split(" ");
+			if(strspl.length == 3){
+				allcounts = Integer.parseInt(strspl[0]);
+				wincounts = Integer.parseInt(strspl[1]);
+			}else{
+				allcounts = 0;
+				wincounts = 0;
+			}
+			in.close();
+		} catch (IOException e2) {
+			// TODO 自动生成的 catch 块
+			e2.printStackTrace();
+		}}else{
+			allcounts = 0;
+			wincounts = 0;
+		}
 		if((playerstate[playerid].failurestate==1)&&(playerstate[(playerid+2)%4].failurestate==1)){
 			flag = true;
 			JOptionPane.showMessageDialog(GcFrame.this,"您输了！请再接再厉","游戏失败",JOptionPane.INFORMATION_MESSAGE);
 		}else if((playerstate[(playerid+1)%4].failurestate==1)&&(playerstate[(playerid+3)%4].failurestate==1))
 		{   
 			flag = true;
+			wincounts ++;
 			JOptionPane.showMessageDialog(GcFrame.this,"您赢了！恭喜！","游戏获胜",JOptionPane.INFORMATION_MESSAGE);
 		}else if(((playerstate[0].peacetick>0)&&(playerstate[1].peacetick>0)&&(playerstate[2].peacetick>0)&&(playerstate[3].peacetick>0))||totalturn>999)
 		{   
@@ -779,6 +907,19 @@ public class GcFrame extends JFrame {
 			JOptionPane.showMessageDialog(GcFrame.this,"所有玩家同意和棋，游戏平局！","游戏平局",JOptionPane.INFORMATION_MESSAGE);
 		}
 		if(flag){
+			allcounts ++;
+			FileOutputStream clearout;
+			try {
+				clearout = new FileOutputStream(cfile);
+				double winrate = (double) wincounts / (double) allcounts *100;
+				String scount= String.valueOf(allcounts)+" "+String.valueOf(wincounts)+" "+String.format("%.2f",winrate);
+				clearout.write(scount.getBytes());
+				clearout.close();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			} 
+		
 		try {
 			InitLayout();
 		} catch (IOException e) {
@@ -786,11 +927,12 @@ public class GcFrame extends JFrame {
 			e.printStackTrace();
 		}
 		gamesave = gamesave +"game end";
+		if(autosave){
 		SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH_mm");//设置日期格式
 		//System.out.println(df.format(new Date()));// new Date()为获取当前系统时间
 		FileOutputStream gamesaveout;
 		try {
-			gamesaveout = new FileOutputStream(new File("./save/jq"+df.format(new Date())+".ags"));
+			gamesaveout = new FileOutputStream(new File("./save/gamesave/jq"+df.format(new Date())+".ags"));
 			gamesaveout.write(gamesave.getBytes());
 			gamesaveout.close();
 		} catch (FileNotFoundException e) {
@@ -800,7 +942,33 @@ public class GcFrame extends JFrame {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		} 
-		
+		}else{
+			if(JOptionPane.showConfirmDialog(GcFrame.this, "是否保存布局？","保存布局",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE)==JOptionPane.YES_OPTION){
+				ExtensionFileFilter filter = new ExtensionFileFilter();
+ 				filter.addExtension("ags");
+ 				filter.setDescription("army chess gave save文件(*.ags)");
+ 				JFileChooser chooser = new JFileChooser("./save/gamesave");
+ 				chooser.setAcceptAllFileFilterUsed(false); 
+ 				chooser.addChoosableFileFilter(filter);
+ 				int result = chooser.showSaveDialog(GcFrame.this);
+ 				if(result == JFileChooser.APPROVE_OPTION)
+ 				{
+ 					String GSname = chooser.getSelectedFile().getPath();
+ 					if(GSname.indexOf(".ags")<0){
+ 						GSname = GSname+".ags";
+ 					}
+ 					//System.out.println(LSname+".ags");
+ 					try {
+ 						FileOutputStream gamesaveout = new FileOutputStream(new File(GSname));
+ 						gamesaveout.write(gamesave.getBytes());
+ 						gamesaveout.close();
+ 					} catch (IOException e1) {
+ 						// TODO 自动生成的 catch 块
+ 						e1.printStackTrace();
+ 					}
+ 				}
+			}
+		}		
 		GameReadyMenuItem.setEnabled(true);
 		LoadLayoutMenuItem.setEnabled(true);
 		SaveLayoutMenuItem.setEnabled(true);
@@ -835,7 +1003,7 @@ public class GcFrame extends JFrame {
 				ExtensionFileFilter filter = new ExtensionFileFilter();
 				filter.addExtension("als");
 				filter.setDescription("army chess layout save文件(*.als)");
-				JFileChooser chooser = new JFileChooser(".\\save");
+				JFileChooser chooser = new JFileChooser("./save/layoutsave");
 				chooser.setAcceptAllFileFilterUsed(false); 
 				chooser.addChoosableFileFilter(filter);
 				int result = chooser.showDialog(GcFrame.this , "调入布局");
@@ -863,7 +1031,7 @@ public class GcFrame extends JFrame {
  				ExtensionFileFilter filter = new ExtensionFileFilter();
  				filter.addExtension("als");
  				filter.setDescription("army chess layout save文件(*.als)");
- 				JFileChooser chooser = new JFileChooser(".\\save");
+ 				JFileChooser chooser = new JFileChooser("./save/layoutsave");
  				chooser.setAcceptAllFileFilterUsed(false); 
  				chooser.addChoosableFileFilter(filter);
  				int result = chooser.showSaveDialog(GcFrame.this);
@@ -908,7 +1076,7 @@ public class GcFrame extends JFrame {
 						break;
 					}else{
 						playerstate[i-1].readystate = 1;
-						startsound.play();
+						if(soundeffect)	startsound.play();
 					}
 				}
 				if(flag){
@@ -920,7 +1088,7 @@ public class GcFrame extends JFrame {
 				LoadLayoutMenuItem.setEnabled(false);
 				SaveLayoutMenuItem.setEnabled(false);
 				try {
-					SaveLayoutFile("./save/default.als");
+					SaveLayoutFile("./save/layoutsave/default.als");
 				} catch (IOException e1) {
 					// TODO 自动生成的 catch 块
 					e1.printStackTrace();
@@ -978,3 +1146,4 @@ public class GcFrame extends JFrame {
 	 }
 
 }
+
