@@ -1,6 +1,6 @@
 package armychess;
 /*
- * AI Ä£¿é
+ * AI æ¨¡å—
  */
 public class ChessAI {
     long duration = 0;
@@ -21,57 +21,57 @@ public class ChessAI {
 	}
 
 	public int[] getvalue(Chessboard board) {
-		int value[] = { 0, 0, 0, 0 ,0};// 0=RedÊ£Óà±øÁ¦,1=BlueÊ£Óà±øÁ¦,2=GreenÊ£Óà±øÁ¦,3=PurpleÊ£Óà±øÁ¦
+		int value[] = { 0, 0, 0, 0 ,0};// 0=Redå‰©ä½™å…µåŠ›,1=Blueå‰©ä½™å…µåŠ›,2=Greenå‰©ä½™å…µåŠ›,3=Purpleå‰©ä½™å…µåŠ›
 		int num32[] = { 0, 0, 0, 0 ,0};
 		int num30[] = { 0, 0, 0, 0 ,0};
-		int num41[] = { 0, 0, 0, 0 ,0};// ¼ÇÂ¼Ê£Óà¼¸¸ö¹¤±ø¡¢Õ¨µ¯»òµØÀ×
-		int flag[] = { 0, 0, 0, 0, 0 };// ¼ÇÂ¼ÓĞÃ»ÓĞ¾üÆå
+		int num41[] = { 0, 0, 0, 0 ,0};// è®°å½•å‰©ä½™å‡ ä¸ªå·¥å…µã€ç‚¸å¼¹æˆ–åœ°é›·
+		int flag[] = { 0, 0, 0, 0, 0 };// è®°å½•æœ‰æ²¡æœ‰å†›æ£‹
 		for (int i = 0; i < 129; i++) {
 			int j = board.pos[i].party - 1;
 			if (board.pos[i].type == 31)
 				flag[j] = 1;
 			else if (board.pos[i].type == 40)
-				value[j] = value[j] + 192;// Ë¾Áî¼ÛÖµ192
+				value[j] = value[j] + 192;// å¸ä»¤ä»·å€¼192
 			else if (board.pos[i].type == 39)
-				value[j] = value[j] + 128;// ¾ü³¤¼ÛÖµ128
+				value[j] = value[j] + 128;// å†›é•¿ä»·å€¼128
 			else if (board.pos[i].type == 38)
-				value[j] = value[j] + 64;// Ê¦³¤¼ÛÖµ64
+				value[j] = value[j] + 64;// å¸ˆé•¿ä»·å€¼64
 			else if (board.pos[i].type == 37)
-				value[j] = value[j] + 32;// ÂÃ³¤¼ÛÖµ32
+				value[j] = value[j] + 32;// æ—…é•¿ä»·å€¼32
 			else if (board.pos[i].type == 36)
-				value[j] = value[j] + 16;// ÍÅ³¤¼ÛÖµ16
+				value[j] = value[j] + 16;// å›¢é•¿ä»·å€¼16
 			else if (board.pos[i].type == 35)
-				value[j] = value[j] + 8;// Óª³¤¼ÛÖµ8
+				value[j] = value[j] + 8;// è¥é•¿ä»·å€¼8
 			else if (board.pos[i].type == 34)
-				value[j] = value[j] + 2;// Á¬³¤¼ÛÖµ2
+				value[j] = value[j] + 2;// è¿é•¿ä»·å€¼2
 			else if (board.pos[i].type == 33)
-				value[j] = value[j] + 1;// ÅÅ³¤¼ÛÖµ1
+				value[j] = value[j] + 1;// æ’é•¿ä»·å€¼1
 			else if (board.pos[i].type == 32) {
 				if (num32[j] == 0) {
-					value[j] = value[j] + 42;// ×îºóÒ»¸ö¹¤±ø¼ÛÖµ42
+					value[j] = value[j] + 42;// æœ€åä¸€ä¸ªå·¥å…µä»·å€¼42
 					num32[j]++;
 				} else if (num32[j] == 1) {
-					value[j] = value[j] + 26;// µÚ¶ş¸ö¹¤±ø¼ÛÖµ26
+					value[j] = value[j] + 26;// ç¬¬äºŒä¸ªå·¥å…µä»·å€¼26
 					num32[j]++;
 				} else
-					value[j] = value[j] + 18;// µÚÒ»¸ö¹¤±ø¼ÛÖµ18
+					value[j] = value[j] + 18;// ç¬¬ä¸€ä¸ªå·¥å…µä»·å€¼18
 			} else if (board.pos[i].type == 30) {
 				if ( board.pos[i].id % 30 > 14 && board.pos[i].id % 30 < 20 && board.pos[i].id % 30 != 17)
-					value[j] = value[j] + 1;//Õ¨µ¯½øÓª¼ÛÖµ1
+					value[j] = value[j] + 1;//ç‚¸å¼¹è¿›è¥ä»·å€¼1
 				if (num30[j] == 0) {
-					value[j] = value[j] + 64;// ×îºóÒ»¸öÕ¨µ¯¼ÛÖµ64
+					value[j] = value[j] + 64;// æœ€åä¸€ä¸ªç‚¸å¼¹ä»·å€¼64
 					num30[j]++;
 				} else
-					value[j] = value[j] + 42;// µÚÒ»¸öÕ¨µ¯¼ÛÖµ42
+					value[j] = value[j] + 42;// ç¬¬ä¸€ä¸ªç‚¸å¼¹ä»·å€¼42
 			} else if (board.pos[i].type == 41) {
 				if (num41[j] == 0) {
-					value[j] = value[j] + 18;// ×îºóÒ»¸öµØÀ×¼ÛÖµ18
+					value[j] = value[j] + 18;// æœ€åä¸€ä¸ªåœ°é›·ä»·å€¼18
 					num41[j]++;
 				} else if (num41[j] == 1) {
-					value[j] = value[j] + 18;// µÚ¶ş¸öµØÀ×¼ÛÖµ18
+					value[j] = value[j] + 18;// ç¬¬äºŒä¸ªåœ°é›·ä»·å€¼18
 					num41[j]++;
 				} else
-					value[j] = value[j] + 18;// µÚÒ»¸öµØÀ×¼ÛÖµ18
+					value[j] = value[j] + 18;// ç¬¬ä¸€ä¸ªåœ°é›·ä»·å€¼18
 			}
 		}
 		for (int i = 0; i < 4; i++)
@@ -165,8 +165,11 @@ public class ChessAI {
 				if (board.pos[i].party == party)
 					for (int j = 0; j < 129; j++) {
 						if (j < 30 || (j > 59 && j < 90) || j > 119) {
-							if (board.pos[i].type == 32 || (board.pos[i].type != 32
-									&& (board.connect_straight(i, j) || board.isnorailconnect(i, j)))) {
+							if ( board.pos[i].party != board.pos[j].party &&
+									(board.pos[i].type >= board.pos[j].type || ( board.pos[j].type == 41 && 
+									board.pos[i].type == 32) || board.pos[j].type == 42 || board.pos[i].type == 30) &&
+									(board.pos[i].type == 32 || (board.pos[i].type != 32
+									&& (board.connect_straight(i, j) || board.isnorailconnect(i, j))))) {
 								int attack_type = board.pos[i].type;
 								int attack_party = board.pos[i].party;
 								int defend_type = board.pos[j].type;
